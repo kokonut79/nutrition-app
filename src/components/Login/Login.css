@@ -1,0 +1,15 @@
+.login-container {
+    height: 100vh;
+    /* Set the height of the container to fill the viewport */
+    display: flex;
+    /* Use flexbox */
+    justify-content: center;
+    /* Center align the content horizontally */
+    align-items: center;
+    /* Center align the content vertically */
+}
+
+.login-grid {
+    max-width: 450px;
+    /* Limit the maximum width of the grid */
+}
