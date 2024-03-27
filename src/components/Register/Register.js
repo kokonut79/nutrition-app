@@ -3,6 +3,7 @@ import { Button, Form, Message } from 'semantic-ui-react';
 import { Link } from "react-router-dom";
 import './Register.css'; // You can define your CSS styles here
 import { validateRegisterForm } from "./RegisterValidation"; // Import the validation logic for sign-up form
+import axios from "axios";
 
 function Register() {
     const [values, setValues] = useState({
@@ -28,6 +29,9 @@ function Register() {
         if (Object.keys(validationErrors).length === 0) {
             // Proceed with form submission
             console.log('Form submitted successfully:', values);
+            axios.post('http://localhost:3001/register', values)
+                .then(res => console.log(res))
+                .then(err => console.log(err))
         } else {
             // Validation failed, display message
             console.log('Form validation failed:', validationErrors);
