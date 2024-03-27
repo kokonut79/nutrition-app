@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button, Form, Message } from 'semantic-ui-react';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import './Register.css'; // You can define your CSS styles here
 import { validateRegisterForm } from "./RegisterValidation"; // Import the validation logic for sign-up form
 import axios from "axios";
@@ -22,6 +22,8 @@ function Register() {
         }));
     };
 
+    const navigate = useNavigate();
+
     const handleSubmit = (event) => {
         event.preventDefault();
         const validationErrors = validateRegisterForm(values);
@@ -30,8 +32,15 @@ function Register() {
             // Proceed with form submission
             console.log('Form submitted successfully:', values);
             axios.post('http://localhost:3001/register', values)
-                .then(res => console.log(res))
+                .then(() => {
+                    // Redirect to the login page
+                    navigate('/login');
+                }).then(res => console.log(res))
                 .then(err => console.log(err))
+                .catch(err => {
+                    console.error('Error submitting form:', err);
+                    // Handle error
+                });
         } else {
             // Validation failed, display message
             console.log('Form validation failed:', validationErrors);

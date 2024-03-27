@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Button, Form, Message } from 'semantic-ui-react';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import './Login.css';
 import { validateLoginForm } from "./LoginValidation";
+import axios from "axios";
 
 function Login() {
-
+  const navigate = useNavigate();
   const [values, setValues] = useState({
     username: '',
     password: ''
@@ -20,7 +21,6 @@ function Login() {
       [name]: value
     }));
   };
-
   const handleSubmit = (event) => {
     event.preventDefault();
     const validationErrors = validateLoginForm(values);
@@ -29,11 +29,24 @@ function Login() {
     if (Object.keys(validationErrors).length === 0) {
       // Proceed with form submission
       console.log('Form submitted successfully:', values);
+      axios.post('http://localhost:3001/login', values)
+        .then(res => {
+          const { redirectTo, user } = res.data;
+          // Save user details in local storage
+          localStorage.setItem('user', JSON.stringify(user));
+          // Redirect to the dashboard page
+          navigate(redirectTo);
+        })
+        .catch(err => {
+          console.error('Login error:', err);
+          setErrors('Invalid username or password');
+        });
     } else {
       // Validation failed, display message
       console.log('Form validation failed:', validationErrors);
     }
   };
+
 
   return (
     <div className="login-container">
