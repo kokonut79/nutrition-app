@@ -4,7 +4,11 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const app = express();
-const port = 3001;
+app.set("port", process.env.PORT || 3001);
+
+app.listen(app.get("port"), () => {
+    console.log(`Find the server at: http://localhost:${app.get("port")}/`); // eslint-disable-line no-console
+});
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
@@ -14,7 +18,6 @@ app.use(
     })
 );
 
-app.set("port", process.env.PORT || 3001);
 // Create MySQL connection
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -86,7 +89,3 @@ app.post('/login', (req, res) => {
     });
 });
 
-
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});

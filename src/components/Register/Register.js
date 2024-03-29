@@ -35,7 +35,8 @@ function Register() {
                 .then(() => {
                     // Redirect to the login page
                     navigate('/login');
-                }).then(res => console.log(res))
+                })
+                .then(res => console.log(res))
                 .then(err => console.log(err))
                 .catch(err => {
                     console.error('Error submitting form:', err);
@@ -96,7 +97,7 @@ function Register() {
                 </Form.Field>
                 <Form.Field>
                     <label>Already have an account ?</label><br />
-                    <Link to='/'>Login</Link>
+                    <Link to='/login'>Login</Link>
                 </Form.Field>
                 <Button type='submit'>Sign Up</Button>
             </Form>
