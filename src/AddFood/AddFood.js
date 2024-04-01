@@ -3,6 +3,7 @@ import { Button, Form, Message } from 'semantic-ui-react';
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { validateAddFoodForm } from "./ValidateFoodForm";
+import './AddFoodForm.css';
 
 function AddFood() {
     const [formData, setFormData] = useState({
@@ -48,7 +49,7 @@ function AddFood() {
 
     return (
         <div className="add-food-container">
-            <Form onSubmit={handleSubmit} error={Object.keys(errors).length > 0}>
+            <Form className="add-food-form" onSubmit={handleSubmit} error={Object.keys(errors).length > 0}>
                 <Form.Field>
                     <label>Name</label>
                     <input
@@ -103,9 +104,10 @@ function AddFood() {
                     />
                     {errors.carbs && <Message error content={errors.carbs} />}
                 </Form.Field>
-                <Button type='submit'>Add Food</Button>
+
                 <Link to="/main">
-                    <Button secondary style={{ marginLeft: '10px' }}>Cancel</Button>
+                    <Button type='submit'>Add Food</Button>
+                    <Button secondary >Cancel</Button>
                 </Link>
             </Form>
         </div>

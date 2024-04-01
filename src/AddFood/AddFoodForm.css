@@ -1,0 +1,38 @@
+/* AddFoodForm.css */
+
+.add-food-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.add-food-grid {
+    max-width: 450px;
+    margin: auto;
+}
+
+.add-food-form {
+    width: 200px;
+}
+
+.add-food-form label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.add-food-form input {
+    width: 100%;
+    margin: 20px;
+}
+
+.add-food-form .error-message {
+    color: red;
+    margin-top: 5px;
+}
+
+.add-food-form .link-to-main {
+    margin: 20px;
+    display: block;
+    text-align: center;
+}
