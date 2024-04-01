@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const app = express();
-app.set("port", process.env.PORT || 3001);
+app.set("port", 3001);
 
 app.listen(app.get("port"), () => {
     console.log(`Find the server at: http://localhost:${app.get("port")}/`); // eslint-disable-line no-console
@@ -88,4 +88,37 @@ app.post('/login', (req, res) => {
         });
     });
 });
+
+app.get('/foods', (req, res) => {
+    const sql = 'SELECT * FROM foods';
+    connection.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error fetching foods from database: ', err);
+            res.status(500).json({ error: 'Error fetching foods from database' });
+            return;
+        }
+        res.json(results);
+    });
+});
+
+app.post('/add-food', (req, res) => {
+    const { name, calories, protein, fat, carbs } = req.body;
+
+    // Validate user input
+    if (!name || !calories || !protein || !fat || !carbs) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    const newFood = { name, calories, protein, fat, carbs };
+    connection.query('INSERT INTO foods SET ?', newFood, (err, result) => {
+        if (err) {
+            console.error('Error adding food:', err);
+            res.status(500).json({ error: 'Internal server error' });
+            return;
+        }
+        console.log('Food added successfully');
+        res.status(200).json({ message: 'Food added successfully' });
+    });
+});
+
 
