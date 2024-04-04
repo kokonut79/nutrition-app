@@ -61,7 +61,6 @@ app.post('/register', (req, res) => {
 });
 
 // Login Endpoint
-// Login Endpoint
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
@@ -106,8 +105,8 @@ app.post('/add-food', (req, res) => {
         return res.status(400).json({ error: 'All fields are required' });
     }
 
-    const newFood = { userId: userId, name, calories, protein, fat, carbs }; // Use 'user_id' field for consistency
-    connection.query('INSERT INTO foods SET ?', newFood, (err, result) => {
+    const newFood = { userId: userId, name, calories, protein, fat, carbs };
+    connection.query('INSERT INTO foods SET ?', newFood, (err) => {
         if (err) {
             console.error('Error adding food:', err);
             return res.status(500).json({ error: 'Internal server error' });

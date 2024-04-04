@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Table } from 'semantic-ui-react';
 
-function SelectedFoodsTable() {
-    const [selectedFoods, setSelectedFoods] = useState([]);
-
-    // Function to add a food item to the selected foods table
-    const addToSelectedFoodsTable = (food) => {
-        setSelectedFoods(prevSelectedFoods => [...prevSelectedFoods, food]);
-    };
+function SelectedFoodsTable({ selectedFoods }) {
+    // Calculate total values
+    const totalValues = selectedFoods.reduce((total, food) => {
+        total.calories += food.calories || 0;
+        total.protein += food.protein || 0;
+        total.fat += food.fat || 0;
+        total.carbs += food.carbs || 0;
+        return total;
+    }, { calories: 0, protein: 0, fat: 0, carbs: 0 });
 
     return (
         <div style={{ margin: 'auto', width: '60%' }}>
@@ -23,8 +25,8 @@ function SelectedFoodsTable() {
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {selectedFoods.map(food => (
-                        <Table.Row key={food.id}>
+                    {selectedFoods.map((food, index) => (
+                        <Table.Row key={index}>
                             <Table.Cell>{food.name}</Table.Cell>
                             <Table.Cell>{food.calories}</Table.Cell>
                             <Table.Cell>{food.protein}</Table.Cell>
@@ -33,6 +35,15 @@ function SelectedFoodsTable() {
                         </Table.Row>
                     ))}
                 </Table.Body>
+                <Table.Footer>
+                    <Table.Row>
+                        <Table.HeaderCell>Total</Table.HeaderCell>
+                        <Table.HeaderCell>{totalValues.calories}</Table.HeaderCell>
+                        <Table.HeaderCell>{totalValues.protein}</Table.HeaderCell>
+                        <Table.HeaderCell>{totalValues.fat}</Table.HeaderCell>
+                        <Table.HeaderCell>{totalValues.carbs}</Table.HeaderCell>
+                    </Table.Row>
+                </Table.Footer>
             </Table>
         </div>
     );

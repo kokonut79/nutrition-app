@@ -1,14 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Table } from 'semantic-ui-react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import SelectedFoodsTable from '../Components/SelectedFoodsTable/SelectedFoodsTable';
+import { Table } from 'semantic-ui-react';
 
-function FoodsTable({ onGenerateData }) {
+function FoodsTable({ onFoodSelected }) {
     const [userFoods, setUserFoods] = useState([]);
     const [user, setUser] = useState(null);
-    const [selectedFoods, setSelectedFoods] = useState([])
-
-
 
     useEffect(() => {
         // Fetch user details from session
@@ -30,20 +26,13 @@ function FoodsTable({ onGenerateData }) {
             .catch(error => {
                 console.error('Error fetching user session:', error);
             });
-    }, [])
-        ;
+    }, []);
 
-    const handleClick = () => {
-        const storedData = localStorage.getItem("selectedFood");
-        let existingProducts = storedData ? JSON.parse(storedData) : [];
-
-        setSelectedFoods();
-        localStorage.setItem("selectedFood", JSON.stringify(existingProducts));
+    const handleClick = (food) => {
+        console.log('Clicked Food:', food);
+        // Invoke the onFoodSelected function with the clicked food
+        onFoodSelected(food);
     };
-
-    useEffect(() => {
-        onGenerateData(selectedFoods);
-    }, [selectedFoods, onGenerateData]);
 
     return (
         <div style={{ margin: 'auto', width: '60%' }}>

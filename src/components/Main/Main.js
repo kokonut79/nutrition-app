@@ -8,20 +8,9 @@ import SelectedFoodsTable from '../SelectedFoodsTable/SelectedFoodsTable';
 
 function Main() {
     const [user, setUser] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
     const [selectedFoods, setSelectedFoods] = useState([]);
 
-    const addToSelectedFoodsTable = (food) => {
-        setSelectedFoods(prevSelectedFoods => [...prevSelectedFoods, food]);
-    };
-
-    const [sharedData, setSharedData] = useState([]);
-
     useEffect(() => {
-        const storedData = localStorage.getItem("selectedRows");
-        if (storedData) {
-            setSharedData(JSON.parse(storedData));
-        }
         const fetchSession = async () => {
             try {
                 const response = await axios.get('http://localhost:3001/session');
@@ -34,14 +23,20 @@ function Main() {
         fetchSession();
     }, []);
 
+    const addToSelectedFoodsTable = (food) => {
+        setSelectedFoods(prevSelectedFoods => [...prevSelectedFoods, food]);
+    };
+
     return (
         <Container>
             <Grid textAlign="center" verticalAlign="middle">
                 <Grid.Column>
                     <Header as='h1'>Main Page</Header>
-                    <FoodSearch setSearchQuery={setSearchQuery} />
-                    <FoodsTable searchQuery={searchQuery} onGenerateData={setSharedData} />
-                    <SelectedFoodsTable />
+                    <FoodSearch onFoodSelected={addToSelectedFoodsTable} />
+
+                    <FoodsTable onFoodSelected={addToSelectedFoodsTable} />
+
+                    <SelectedFoodsTable selectedFoods={selectedFoods} />
 
                     <div style={{ marginTop: '20px' }}>
                         <Link to="/add-food">
