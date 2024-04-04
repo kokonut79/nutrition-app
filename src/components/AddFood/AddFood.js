@@ -31,20 +31,35 @@ function AddFood() {
         if (Object.keys(validationErrors).length === 0) {
             // Proceed with form submission
             console.log('Form submitted successfully:', formData);
-            axios.post('http://localhost:3001/add-food', formData)
-                .then(() => {
-                    // Redirect to the main page or update the food list
-                    navigate('/main');
+            axios.get('http://localhost:3001/session')
+                .then(response => {
+                    const userId = response.data.user.id;
+                    axios.post('http://localhost:3001/add-food', {
+                        ...formData,
+                        userId: userId
+                    })
+                        .then(() => {
+                            // Redirect to the main page or update the food list
+                            navigate('/main');
+                        })
+                        .catch(err => {
+                            console.error('Error submitting form:', err);
+                            // Handle error
+                        });
                 })
-                .then(res => console.log(res))
-                .catch(err => {
-                    console.error('Error submitting form:', err);
-                    // Handle error
+                .catch(error => {
+                    console.error('Error getting session data:', error);
                 });
         } else {
             // Validation failed, display message
             console.log('Form validation failed:', validationErrors);
         }
+    };
+
+
+    const handleCancel = () => {
+        // Handle cancel action
+        navigate('/main');
     };
 
     return (
@@ -105,10 +120,8 @@ function AddFood() {
                     {errors.carbs && <Message error content={errors.carbs} />}
                 </Form.Field>
 
-                <Link to="/main">
-                    <Button type='submit'>Add Food</Button>
-                    <Button secondary >Cancel</Button>
-                </Link>
+                <Button type='submit'>Add Food</Button>
+                <Button secondary onClick={handleCancel}>Cancel</Button>
             </Form>
         </div>
     );

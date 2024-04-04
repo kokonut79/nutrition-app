@@ -2,23 +2,24 @@ const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const session = require('express-session');
 
 const app = express();
-app.set("port", 3001);
+const PORT = 3001;
 
-app.listen(app.get("port"), () => {
-    console.log(`Find the server at: http://localhost:${app.get("port")}/`); // eslint-disable-line no-console
-});
-
-// Middleware to parse JSON bodies
+// Middleware
 app.use(bodyParser.json());
-app.use(
-    cors({
-        origin: "*",
-    })
-);
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false
+}));
 
-// Create MySQL connection
+// MySQL Connection
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -27,7 +28,7 @@ const connection = mysql.createConnection({
 });
 
 // Connect to MySQL
-connection.connect((err) => {
+connection.connect(err => {
     if (err) {
         console.error('Error connecting to MySQL database:', err);
         return;
@@ -35,7 +36,7 @@ connection.connect((err) => {
     console.log('Connected to MySQL database');
 });
 
-// Register endpoint
+// Register Endpoint
 app.post('/register', (req, res) => {
     const { email, username, password, confirmPassword } = req.body;
 
@@ -52,15 +53,15 @@ app.post('/register', (req, res) => {
     connection.query('INSERT INTO users SET ?', newUser, (err, result) => {
         if (err) {
             console.error('Error registering user:', err);
-            res.status(500).json({ error: 'Internal server error' });
-            return;
+            return res.status(500).json({ error: 'Internal server error' });
         }
         console.log('User registered successfully');
         res.status(200).json({ message: 'User registered successfully' });
     });
 });
 
-// Login endpoint
+// Login Endpoint
+// Login Endpoint
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
@@ -81,40 +82,35 @@ app.post('/login', (req, res) => {
             return res.status(404).json({ error: 'User not found or incorrect credentials' });
         }
 
+        // Save user in session
+        req.session.user = { id: results[0].id, username: results[0].username, email: results[0].email };
+
         // If user found and password matches, return success with redirectTo field
         res.status(200).json({
-            message: 'Login successful', user: { username: results[0].username, email: results[0].email },
+            message: 'Login successful',
             redirectTo: '/main'
         });
     });
 });
 
-app.get('/foods', (req, res) => {
-    const sql = 'SELECT * FROM foods';
-    connection.query(sql, (err, results) => {
-        if (err) {
-            console.error('Error fetching foods from database: ', err);
-            res.status(500).json({ error: 'Error fetching foods from database' });
-            return;
-        }
-        res.json(results);
-    });
-});
 
+
+
+// Add Food Endpoint
 app.post('/add-food', (req, res) => {
     const { name, calories, protein, fat, carbs } = req.body;
+    const userId = req.session.user ? req.session.user.id : null; // Retrieve user ID from session
 
     // Validate user input
-    if (!name || !calories || !protein || !fat || !carbs) {
+    if (!userId || !name || !calories || !protein || !fat || !carbs) {
         return res.status(400).json({ error: 'All fields are required' });
     }
 
-    const newFood = { name, calories, protein, fat, carbs };
+    const newFood = { userId: userId, name, calories, protein, fat, carbs }; // Use 'user_id' field for consistency
     connection.query('INSERT INTO foods SET ?', newFood, (err, result) => {
         if (err) {
             console.error('Error adding food:', err);
-            res.status(500).json({ error: 'Internal server error' });
-            return;
+            return res.status(500).json({ error: 'Internal server error' });
         }
         console.log('Food added successfully');
         res.status(200).json({ message: 'Food added successfully' });
@@ -122,3 +118,33 @@ app.post('/add-food', (req, res) => {
 });
 
 
+// Get Foods by User ID Endpoint
+app.get('/foods/:userId', (req, res) => {
+    const userId = req.params.userId;
+
+    // Query foods associated with the specified user ID
+    connection.query('SELECT * FROM foods WHERE userId = ?', userId, (err, results) => {
+        if (err) {
+            console.error('Error fetching foods:', err);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+        res.json(results);
+    });
+});
+
+
+// Check user session endpoint
+app.get('/session', (req, res) => {
+    if (req.session.user) {
+        res.status(200).json({ user: req.session.user });
+    } else {
+        res.status(401).json({ error: 'User session not found' });
+    }
+});
+
+
+
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});

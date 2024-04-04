@@ -3,7 +3,7 @@ import Login from './Components/Login/Login';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Register from './Components/Register/Register'
 import Main from './Components/Main/Main';
-import AddFood from './AddFood/AddFood';
+import AddFood from './Components/AddFood/AddFood';
 
 function App() {
   return (

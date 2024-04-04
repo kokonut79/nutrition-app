@@ -12,7 +12,7 @@ function Login() {
     password: ''
   });
   const [errors, setErrors] = useState({});
-  const [submitted, setSubmitted] = useState(false); // New state variable
+  const [submitted, setSubmitted] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -21,29 +21,25 @@ function Login() {
       [name]: value
     }));
   };
-  const handleSubmit = (event) => {
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const validationErrors = validateLoginForm(values);
     setErrors(validationErrors);
-    setSubmitted(true); // Update submitted state
+    setSubmitted(true);
+
     if (Object.keys(validationErrors).length === 0) {
-      // Proceed with form submission
-      console.log('Form submitted successfully:', values);
-      axios.post('http://localhost:3001/login', values)
-        .then(res => {
-          const { redirectTo, user } = res.data;
-          // Save user details in local storage
-          localStorage.setItem('user', JSON.stringify(user));
-          // Redirect to the dashboard page
-          navigate(redirectTo);
-        })
-        .catch(err => {
-          console.error('Login error:', err);
-          setErrors('Invalid username or password');
-        });
-    } else {
-      // Validation failed, display message
-      console.log('Form validation failed:', validationErrors);
+      try {
+        const response = await axios.post('http://localhost:3001/login', values);
+        const { redirectTo } = response.data;
+
+        console.log('Login response:', response.data); // Log the response data
+
+        navigate(redirectTo);
+      } catch (error) {
+        console.error('Login error:', error);
+        setErrors({ general: 'Invalid username or password' });
+      }
     }
   };
 
@@ -73,6 +69,7 @@ function Login() {
           />
           {submitted && errors.password && <Message error content={errors.password} />}
         </Form.Field>
+        {submitted && errors.general && <Message error content={errors.general} />}
         <Form.Field>
           <label>Don't have an account?</label><br />
           <Link to='/register'>Sign up</Link>

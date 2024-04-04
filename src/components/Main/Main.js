@@ -1,37 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Button, Header, Container } from 'semantic-ui-react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import FoodsTable from '../../FoodsTable/FoodsTable';
-
+import { Link } from 'react-router-dom';
+import { Container, Header, Button, Grid } from 'semantic-ui-react';
+import FoodSearch from '../FoodSearch/FoodSearch';
+import SelectedFoodsTable from '../SelectedFoodsTable/SelectedFoodsTable';
 
 function Main() {
     const [user, setUser] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedFoods, setSelectedFoods] = useState([]);
+
+    const addToSelectedFoodsTable = (food) => {
+        setSelectedFoods(prevSelectedFoods => [...prevSelectedFoods, food]);
+    };
+
+    const [sharedData, setSharedData] = useState([]);
 
     useEffect(() => {
-        // Retrieve user details from client-side state or local storage
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
+        const storedData = localStorage.getItem("selectedRows");
+        if (storedData) {
+            setSharedData(JSON.parse(storedData));
         }
+        const fetchSession = async () => {
+            try {
+                const response = await axios.get('http://localhost:3001/session');
+                setUser(response.data.user);
+            } catch (error) {
+                console.error('Error fetching session:', error);
+            }
+        };
+
+        fetchSession();
     }, []);
 
     return (
-        <Container style={{ marginTop: '20px', textAlign: 'center' }}>
-            {user && (
-                <Header as='h2' style={{
-                    backgroundColor: '#f0f0f0', padding: '10px',
-                    borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                    display: 'inline-block'
-                }}>
-                    Welcome, {user.username}
-                </Header>
-            )}
-            <Link to="/add-food">
-                <Button primary style={{ marginLeft: '20px' }}>
-                    Add Food
-                </Button>
-            </Link>
-            <FoodsTable />
+        <Container>
+            <Grid textAlign="center" verticalAlign="middle">
+                <Grid.Column>
+                    <Header as='h1'>Main Page</Header>
+                    <FoodSearch setSearchQuery={setSearchQuery} />
+                    <FoodsTable searchQuery={searchQuery} onGenerateData={setSharedData} />
+                    <SelectedFoodsTable />
+
+                    <div style={{ marginTop: '20px' }}>
+                        <Link to="/add-food">
+                            <Button primary>Add Food</Button>
+                        </Link>
+                    </div>
+                </Grid.Column>
+            </Grid>
         </Container>
     );
 }

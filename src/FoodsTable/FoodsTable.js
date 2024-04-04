@@ -1,26 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { Table } from 'semantic-ui-react';
 import axios from 'axios';
+import SelectedFoodsTable from '../Components/SelectedFoodsTable/SelectedFoodsTable';
 
-function FoodsTable() {
-    const [foods, setFoods] = useState([]);
+function FoodsTable({ onGenerateData }) {
+    const [userFoods, setUserFoods] = useState([]);
+    const [user, setUser] = useState(null);
+    const [selectedFoods, setSelectedFoods] = useState([])
+
+
 
     useEffect(() => {
-        // Fetch foods data from the backend API
-        axios.get('http://localhost:3001/foods')
+        // Fetch user details from session
+        axios.get('http://localhost:3001/session')
             .then(response => {
-                // Set the foods state with the data received from the API
-                setFoods(response.data);
+                const { user } = response.data;
+                setUser(user);
+                // Fetch foods data for the logged-in user from the backend API
+                axios.get(`http://localhost:3001/foods/${user.id}`)
+                    .then(response => {
+                        // Filter foods to show only those added by the logged-in user
+                        const userFoods = response.data.filter(food => food.userId === user.id);
+                        setUserFoods(userFoods);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching foods:', error);
+                    });
             })
             .catch(error => {
-                console.error('Error fetching foods:', error);
+                console.error('Error fetching user session:', error);
             });
-    }, []);
+    }, [])
+        ;
+
+    const handleClick = () => {
+        const storedData = localStorage.getItem("selectedFood");
+        let existingProducts = storedData ? JSON.parse(storedData) : [];
+
+        setSelectedFoods();
+        localStorage.setItem("selectedFood", JSON.stringify(existingProducts));
+    };
+
+    useEffect(() => {
+        onGenerateData(selectedFoods);
+    }, [selectedFoods, onGenerateData]);
 
     return (
         <div style={{ margin: 'auto', width: '60%' }}>
-            <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Nutritional Values of Foods</h2>
+            <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Your Nutritional Values of Foods</h2>
             <Table celled>
                 <Table.Header>
                     <Table.Row>
@@ -32,12 +59,9 @@ function FoodsTable() {
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {foods.map(food => (
-                        <Table.Row key={food.id}>
-                            <Table.Cell>
-                                {/* Link to the individual food page */}
-                                <Link to={`/food/${food.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>{food.name}</Link>
-                            </Table.Cell>
+                    {userFoods.map(food => (
+                        <Table.Row key={food.id} onClick={() => handleClick(food)}>
+                            <Table.Cell style={{ cursor: 'pointer' }}>{food.name}</Table.Cell>
                             <Table.Cell>{food.calories}</Table.Cell>
                             <Table.Cell>{food.protein}</Table.Cell>
                             <Table.Cell>{food.fat}</Table.Cell>
